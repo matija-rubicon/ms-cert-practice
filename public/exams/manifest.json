@@ -61,16 +61,16 @@
       "code": "AZ-104",
       "title": "Microsoft Azure Administrator",
       "description": "Identity, governance, storage, virtual networking, compute, and monitoring on Azure.",
-      "available": false,
+      "available": true,
       "passingScaled": 700,
       "defaultQuestionCount": 50,
       "defaultTimeMinutes": 120,
       "domains": [
-        { "name": "Identity & Governance", "weight": 0.225, "categories": [] },
-        { "name": "Storage", "weight": 0.20, "categories": [] },
-        { "name": "Compute", "weight": 0.225, "categories": [] },
-        { "name": "Virtual Networking", "weight": 0.225, "categories": [] },
-        { "name": "Monitor & Maintain", "weight": 0.125, "categories": [] }
+        { "name": "Identity & Governance", "weight": 0.225, "categories": ["Identity & Governance"] },
+        { "name": "Storage", "weight": 0.20, "categories": ["Storage"] },
+        { "name": "Compute", "weight": 0.225, "categories": ["Compute"] },
+        { "name": "Virtual Networking", "weight": 0.225, "categories": ["Virtual Networking"] },
+        { "name": "Monitor & Maintain", "weight": 0.125, "categories": ["Monitor & Maintain"] }
       ]
     },
     {
