@@ -1,0 +1,110 @@
+{
+  "exams": [
+    {
+      "id": "az400",
+      "code": "AZ-400",
+      "title": "Designing and Implementing Microsoft DevOps Solutions",
+      "description": "Pipelines, source control, security, instrumentation, and DevOps process design across Azure DevOps and GitHub.",
+      "available": true,
+      "passingScaled": 700,
+      "defaultQuestionCount": 50,
+      "defaultTimeMinutes": 120,
+      "domains": [
+        {
+          "name": "Pipelines",
+          "weight": 0.525,
+          "categories": [
+            "CI/CD Pipelines",
+            "GitHub & GitHub Actions",
+            "Release & Deployment",
+            "Containers & Kubernetes",
+            "Infrastructure as Code",
+            "Configuration Management"
+          ]
+        },
+        {
+          "name": "Processes & Communication",
+          "weight": 0.125,
+          "categories": [
+            "Azure Boards & Agile",
+            "Azure DevOps Administration",
+            "General Azure DevOps"
+          ]
+        },
+        {
+          "name": "Source Control",
+          "weight": 0.125,
+          "categories": [
+            "Source Control & Git"
+          ]
+        },
+        {
+          "name": "Security & Compliance",
+          "weight": 0.125,
+          "categories": [
+            "Security & Compliance",
+            "Package & Dependency Mgmt"
+          ]
+        },
+        {
+          "name": "Instrumentation",
+          "weight": 0.075,
+          "categories": [
+            "Monitoring & Observability",
+            "Testing"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "az104",
+      "code": "AZ-104",
+      "title": "Microsoft Azure Administrator",
+      "description": "Identity, governance, storage, virtual networking, compute, and monitoring on Azure.",
+      "available": false,
+      "passingScaled": 700,
+      "defaultQuestionCount": 50,
+      "defaultTimeMinutes": 120,
+      "domains": [
+        { "name": "Identity & Governance", "weight": 0.225, "categories": [] },
+        { "name": "Storage", "weight": 0.20, "categories": [] },
+        { "name": "Compute", "weight": 0.225, "categories": [] },
+        { "name": "Virtual Networking", "weight": 0.225, "categories": [] },
+        { "name": "Monitor & Maintain", "weight": 0.125, "categories": [] }
+      ]
+    },
+    {
+      "id": "az204",
+      "code": "AZ-204",
+      "title": "Developing Solutions for Microsoft Azure",
+      "description": "Azure compute, storage, security, monitoring, and integrating Azure services into apps.",
+      "available": false,
+      "passingScaled": 700,
+      "defaultQuestionCount": 50,
+      "defaultTimeMinutes": 120,
+      "domains": [
+        { "name": "Compute Solutions", "weight": 0.275, "categories": [] },
+        { "name": "Azure Storage", "weight": 0.20, "categories": [] },
+        { "name": "Security", "weight": 0.20, "categories": [] },
+        { "name": "Monitor, Troubleshoot, Optimize", "weight": 0.125, "categories": [] },
+        { "name": "Connect to & Consume Services", "weight": 0.20, "categories": [] }
+      ]
+    },
+    {
+      "id": "az305",
+      "code": "AZ-305",
+      "title": "Designing Microsoft Azure Infrastructure Solutions",
+      "description": "Architect identity, governance, data, business continuity, and infrastructure solutions.",
+      "available": false,
+      "passingScaled": 700,
+      "defaultQuestionCount": 50,
+      "defaultTimeMinutes": 120,
+      "domains": [
+        { "name": "Identity, Governance, Monitoring", "weight": 0.25, "categories": [] },
+        { "name": "Data Storage Solutions", "weight": 0.25, "categories": [] },
+        { "name": "Business Continuity", "weight": 0.15, "categories": [] },
+        { "name": "Infrastructure Solutions", "weight": 0.35, "categories": [] }
+      ]
+    }
+  ]
+}
