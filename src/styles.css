@@ -249,13 +249,27 @@ button:active { transform: translateY(1px); }
 button[disabled] { opacity: .5; cursor: not-allowed; }
 
 .mode-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 16px; }
-.mode-card { cursor: pointer; transition: border-color .15s, transform .1s; }
+.mode-card {
+  display: block;
+  width: 100%;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  text-decoration: none;
+  transition: border-color .15s, transform .1s, box-shadow .15s;
+}
+.mode-card.active { border-color: var(--azure); box-shadow: 0 0 0 1px var(--azure); }
+.mode-card:focus-visible { outline: 2px solid var(--azure); outline-offset: 2px; }
+.setup-card { scroll-margin-top: 76px; border-color: var(--azure); }
 .mode-card:hover { border-color: var(--azure); transform: translateY(-2px); }
 .mode-card h3 { color: var(--azure); margin-bottom: 6px; }
 .mode-card.disabled { opacity: .55; cursor: not-allowed; }
 .mode-card.disabled:hover { border-color: var(--border); transform: none; }
 .mode-card p { margin: 0; color: var(--muted); font-size: 13px; }
 .mode-icon { font-size: 28px; margin-bottom: 8px; }
+.mode-card h3 { margin-top: 0; }
 .exam-card { display: flex; flex-direction: column; gap: 6px; }
 .exam-code { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .04em; }
 .exam-meta { font-size: 12px; color: var(--muted); margin-top: auto; }
@@ -516,6 +530,26 @@ button[disabled] { opacity: .5; cursor: not-allowed; }
   header { padding: 10px 14px; gap: 10px; }
   header h1 { font-size: 15px; }
   .card { padding: 18px 16px; }
+  .page { margin-top: 12px; padding: 0 12px 48px; }
+  .quiz-layout { margin-top: 12px; padding: 0 12px 48px; }
+  h2 { font-size: 19px; }
+
+  /* Mode cards: compact rows, icon beside text */
+  .mode-grid { grid-template-columns: 1fr; gap: 10px; margin-bottom: 10px; }
+  .mode-grid > .card { margin-bottom: 0; }
+  .mode-card:not(.exam-card) { display: flex; align-items: center; gap: 14px; padding: 14px 16px; }
+  .mode-card .mode-icon { font-size: 22px; margin: 0; width: 28px; text-align: center; flex-shrink: 0; }
+  .mode-card h3 { margin-bottom: 2px; font-size: 16px; }
+  .mode-card:hover { transform: none; }
+  .exam-card { padding: 16px; }
+
+  /* Setup forms: label above full-width field; 16px avoids iOS zoom-on-focus */
+  .field-row { flex-direction: column; align-items: stretch; gap: 6px; }
+  .field-row label { min-width: 0; }
+  .field-row select, .field-row input[type=number] { max-width: none; width: 100%; font-size: 16px; padding: 10px 12px; }
+  .setup-card .nav-row > div:first-child { display: none; }
+  .setup-card .nav-row > div { width: 100%; flex-direction: column-reverse; }
+  .setup-card .nav-row button { width: 100%; padding: 12px; font-size: 15px; }
   .history-row {
     grid-template-columns: 1fr 70px;
     grid-template-areas:

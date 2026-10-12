@@ -37,7 +37,7 @@ export default function ExamPicker({ manifest }: Props) {
             </>
           );
           return e.available ? (
-            <Link key={e.id} to={`/exam/${e.id}`} className="card mode-card exam-card" style={{ textDecoration: "none", color: "inherit" }}>
+            <Link key={e.id} to={`/exam/${e.id}`} className="card mode-card exam-card">
               {card}
             </Link>
           ) : (

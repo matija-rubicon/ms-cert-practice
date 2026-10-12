@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import type { ExamManifest, Question } from "../types";
 import { historyForExam } from "../lib/storage";
@@ -18,8 +18,9 @@ export default function ExamHome({ manifest }: Props) {
   const exam = manifest.exams.find((e) => e.id === examId);
   const nav = useNavigate();
   const [bank, setBank] = useState<BankState>({ loading: true });
-  const [showExam, setShowExam] = useState(false);
-  const [showQuick, setShowQuick] = useState(false);
+  // Only one setup panel open at a time
+  const [setup, setSetup] = useState<"exam" | "quick" | null>(null);
+  const setupRef = useRef<HTMLDivElement>(null);
   const [examCount, setExamCount] = useState(0);
   const [examMin, setExamMin] = useState(0);
   const [quickCount, setQuickCount] = useState(20);
@@ -35,6 +36,11 @@ export default function ExamHome({ manifest }: Props) {
       .then((qs: Question[]) => setBank({ loading: false, questions: playable(qs) }))
       .catch((e) => setBank({ loading: false, error: String(e.message || e) }));
   }, [examId, exam]);
+
+  // Bring the opened panel into view (on phones it sits below the cards)
+  useEffect(() => {
+    if (setup) setupRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }, [setup]);
 
   if (!exam) return <div className="card"><p>Unknown exam.</p></div>;
 
@@ -98,34 +104,50 @@ export default function ExamHome({ manifest }: Props) {
       </div>
 
       <div className="mode-grid">
-        <div className="card mode-card" onClick={() => setShowExam((v) => !v)}>
+        <button
+          type="button"
+          className={`card mode-card${setup === "exam" ? " active" : ""}`}
+          aria-expanded={setup === "exam"}
+          onClick={() => setSetup((v) => (v === "exam" ? null : "exam"))}
+        >
           <div className="mode-icon">▶</div>
-          <h3>Full exam</h3>
-          <p>{exam.defaultQuestionCount} questions · {exam.defaultTimeMinutes} min · domain-weighted · scaled 0–1000</p>
-        </div>
-        <div className="card mode-card" onClick={() => setShowQuick((v) => !v)}>
+          <div className="mode-body">
+            <h3>Full exam</h3>
+            <p>{exam.defaultQuestionCount} questions · {exam.defaultTimeMinutes} min · domain-weighted · scaled 0–1000</p>
+          </div>
+        </button>
+        <button
+          type="button"
+          className={`card mode-card${setup === "quick" ? " active" : ""}`}
+          aria-expanded={setup === "quick"}
+          onClick={() => setSetup((v) => (v === "quick" ? null : "quick"))}
+        >
           <div className="mode-icon">⚡</div>
-          <h3>Quick quiz</h3>
-          <p>Pick length and topic. Instant feedback per question.</p>
-        </div>
-        <Link to={`/exam/${exam.id}/history`} className="card mode-card" style={{ textDecoration: "none", color: "inherit" }}>
+          <div className="mode-body">
+            <h3>Quick quiz</h3>
+            <p>Pick length and topic. Instant feedback per question.</p>
+          </div>
+        </button>
+        <Link to={`/exam/${exam.id}/history`} className="card mode-card">
           <div className="mode-icon">▤</div>
-          <h3>History ({history.length})</h3>
-          <p>Review past attempts and missed questions.</p>
+          <div className="mode-body">
+            <h3>History ({history.length})</h3>
+            <p>Review past attempts and missed questions.</p>
+          </div>
         </Link>
       </div>
 
-      {showExam && (
-        <div className="card">
+      {setup === "exam" && (
+        <div className="card setup-card" ref={setupRef}>
           <h3>Full exam setup</h3>
           <div className="field-row">
             <label>Questions</label>
-            <input type="number" min={5} max={questions.length} value={examCount}
+            <input type="number" inputMode="numeric" min={5} max={questions.length} value={examCount}
               onChange={(e) => setExamCount(parseInt(e.target.value, 10) || 0)} />
           </div>
           <div className="field-row">
             <label>Time limit (min)</label>
-            <input type="number" min={1} max={300} value={examMin}
+            <input type="number" inputMode="numeric" min={1} max={300} value={examMin}
               onChange={(e) => setExamMin(parseInt(e.target.value, 10) || 0)} />
           </div>
           <p className="hint">
@@ -135,19 +157,19 @@ export default function ExamHome({ manifest }: Props) {
           <div className="nav-row">
             <div></div>
             <div>
-              <button className="btn-ghost" onClick={() => setShowExam(false)}>Cancel</button>
+              <button className="btn-ghost" onClick={() => setSetup(null)}>Cancel</button>
               <button className="btn-primary" onClick={startExam}>Start exam</button>
             </div>
           </div>
         </div>
       )}
 
-      {showQuick && (
-        <div className="card">
+      {setup === "quick" && (
+        <div className="card setup-card" ref={setupRef}>
           <h3>Quick quiz setup</h3>
           <div className="field-row">
             <label>Questions</label>
-            <input type="number" min={1} max={questions.length} value={quickCount}
+            <input type="number" inputMode="numeric" min={1} max={questions.length} value={quickCount}
               onChange={(e) => setQuickCount(parseInt(e.target.value, 10) || 1)} />
           </div>
           <div className="field-row">
@@ -164,7 +186,7 @@ export default function ExamHome({ manifest }: Props) {
           <div className="nav-row">
             <div></div>
             <div>
-              <button className="btn-ghost" onClick={() => setShowQuick(false)}>Cancel</button>
+              <button className="btn-ghost" onClick={() => setSetup(null)}>Cancel</button>
               <button className="btn-primary" onClick={startQuick}>Start quiz</button>
             </div>
           </div>
