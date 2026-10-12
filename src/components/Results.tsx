@@ -159,7 +159,7 @@ export default function Results({ manifest, reviewMode = false }: Props) {
                     <li key={i}>
                       <label className={`opt-label disabled${cls}`}>
                         <input type={q.type === "multiple" ? "checkbox" : "radio"} checked={sel} disabled readOnly />
-                        <span className="opt-text">{opt.text}</span>
+                        <span className={`opt-text${opt.code ? " opt-code" : ""}`}>{opt.text}</span>
                       </label>
                     </li>
                   );

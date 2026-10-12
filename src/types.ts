@@ -3,6 +3,8 @@ export type QuestionType = "single" | "multiple";
 export interface Option {
   text: string;
   correct: boolean;
+  /** Command or snippet; rendered monospaced. */
+  code?: boolean;
 }
 
 export interface Question {

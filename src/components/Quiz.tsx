@@ -255,7 +255,7 @@ export default function Quiz({ manifest }: Props) {
                       disabled={revealed}
                       onChange={() => toggleOption(idx)}
                     />
-                    <span className="opt-text">{opt.text}</span>
+                    <span className={`opt-text${opt.code ? " opt-code" : ""}`}>{opt.text}</span>
                   </label>
                 </li>
               );
