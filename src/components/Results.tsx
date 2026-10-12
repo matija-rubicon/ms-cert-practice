@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import type { ExamManifest, Attempt, Question } from "../types";
 import { loadHistory } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
-import { rewriteImages } from "../lib/html";
+import { renderHtml } from "../lib/html";
 
 interface Props { manifest: ExamManifest; reviewMode?: boolean; }
 
@@ -147,7 +147,7 @@ export default function Results({ manifest, reviewMode = false }: Props) {
                   {s.earned}/{s.max} pts
                 </span>
               </div>
-              <div className="q-text" dangerouslySetInnerHTML={{ __html: rewriteImages(q.question_html, exam.id) }} />
+              <div className="q-text" dangerouslySetInnerHTML={{ __html: renderHtml(q.question_html, exam.id) }} />
               <ul className="options">
                 {q.options.map((opt, i) => {
                   const sel = picked.includes(i);
@@ -168,7 +168,7 @@ export default function Results({ manifest, reviewMode = false }: Props) {
               {q.explanation_html && (
                 <div className="explanation">
                   <strong>Explanation</strong><br />
-                  <span dangerouslySetInnerHTML={{ __html: rewriteImages(q.explanation_html, exam.id) }} />
+                  <span dangerouslySetInnerHTML={{ __html: renderHtml(q.explanation_html, exam.id) }} />
                 </div>
               )}
             </div>

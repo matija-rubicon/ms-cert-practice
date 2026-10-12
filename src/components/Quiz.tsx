@@ -5,7 +5,7 @@ import { buildRandomExam, buildWeightedExam, playable } from "../lib/sampling";
 import { scoreQuestion, toScaled, domainForCategory } from "../lib/scoring";
 import { saveAttempt } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
-import { rewriteImages } from "../lib/html";
+import { renderHtml } from "../lib/html";
 import Modal from "./Modal";
 
 interface Props { manifest: ExamManifest; }
@@ -236,7 +236,7 @@ export default function Quiz({ manifest }: Props) {
             </button>
           </div>
 
-          <div className="q-text" dangerouslySetInnerHTML={{ __html: rewriteImages(q.question_html, exam.id) }} />
+          <div className="q-text" dangerouslySetInnerHTML={{ __html: renderHtml(q.question_html, exam.id) }} />
 
           <ul className="options">
             {q.options.map((opt, idx) => {
@@ -266,7 +266,7 @@ export default function Quiz({ manifest }: Props) {
           {revealed && q.explanation_html && (
             <div className="explanation">
               <strong>Explanation</strong><br />
-              <span dangerouslySetInnerHTML={{ __html: rewriteImages(q.explanation_html, exam.id) }} />
+              <span dangerouslySetInnerHTML={{ __html: renderHtml(q.explanation_html, exam.id) }} />
             </div>
           )}
 
