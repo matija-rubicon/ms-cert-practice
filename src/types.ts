@@ -15,6 +15,9 @@ export interface Question {
   question_html: string;
   options: Option[];
   explanation_html?: string;
+  /** Can't be answered as presented (e.g. exhibit missing); excluded from quizzes. */
+  disabled?: boolean;
+  disabled_reason?: string;
 }
 
 export interface DomainConfig {

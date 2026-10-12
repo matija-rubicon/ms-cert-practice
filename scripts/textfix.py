@@ -199,6 +199,80 @@ def format_code_blocks(html: str) -> str:
     return "\n".join(parts)
 
 
+# ---------------------------------------------------------------------------
+# Bullet lists: "-item<br/>– item<br/>· item" lines inside a paragraph become
+# <ul>; short Title Case lines in the same paragraph ("Planned Changes") become
+# bold sub-headings.
+
+_BULLET = re.compile(r"^(?:\s|\xa0)*(?:[•·▪●]\s*|(?:[-–]|&gt;)(?:\s|\xa0)+|-(?=[A-Z]))(?=\S)")
+_HEADING = re.compile(r"^[A-Z][\w/&]*(?: [A-Z&][\w/&]*){0,3}$")
+_BLOCK_TAG = re.compile(r"<(ul|ol|li|div|pre|table|p)\b", re.I)
+
+
+def _format_list_para(inner: str):
+    lines = [l.strip("\n") for l in re.split(r"<br\s*/?>\n?", inner)]
+    is_b = [bool(_BULLET.match(l)) for l in lines]
+    # Need a run of at least two bullets to call it a list.
+    if not any(is_b[i] and is_b[i + 1] for i in range(len(lines) - 1)):
+        return None
+    out, buf, items = [], [], []
+
+    def flush_text():
+        if buf:
+            out.append("<p>" + "<br/>\n".join(buf) + "</p>")
+            buf.clear()
+
+    def flush_list():
+        if items:
+            out.append("<ul>\n" + "\n".join(f"<li>{i}</li>" for i in items) + "\n</ul>")
+            items.clear()
+
+    for i, l in enumerate(lines):
+        run = is_b[i] and ((i > 0 and is_b[i - 1]) or (i + 1 < len(lines) and is_b[i + 1]))
+        if run:
+            flush_text()
+            items.append(_BULLET.sub("", l).strip())
+            continue
+        flush_list()
+        text = l.replace("\xa0", " ").strip()
+        if not text:
+            continue
+        if _HEADING.match(text) and "<" not in text and i + 1 < len(lines):
+            flush_text()
+            out.append(f"<p><strong>{text}</strong></p>")
+        else:
+            buf.append(l)
+    flush_text()
+    flush_list()
+    return "\n".join(out)
+
+
+_BULLET_PARAS = re.compile(r"(?:<p>(?:\s|\xa0)*(?:&gt;|[•·▪●]|[-–](?=\s))[^<]*?(?:<(?!/?p\b)[^>]*>[^<]*?)*</p>\s*){2,}")
+
+
+def _merge_bullet_paras(html: str) -> str:
+    """Consecutive one-line "<p>&gt; item</p>" paragraphs -> one <ul>."""
+    def repl(m):
+        items = re.findall(r"<p>(.*?)</p>", m.group(0), re.S)
+        lis = "\n".join(f"<li>{_BULLET.sub('', i).strip()}</li>" for i in items)
+        return f"<ul>\n{lis}\n</ul>\n"
+    return _BULLET_PARAS.sub(repl, html)
+
+
+def format_lists(html: str) -> str:
+    if not html:
+        return html
+    html = _merge_bullet_paras(html)
+
+    def repl(m):
+        inner = m.group(1)
+        if _BLOCK_TAG.search(inner):
+            return m.group(0)
+        return _format_list_para(inner) or m.group(0)
+
+    return re.sub(r"<p(?:\s[^>]*)?>(.*?)</p>", repl, html, flags=re.S)
+
+
 _CODE_OPTION = re.compile(
     r"^([A-F]\.\s*)?("
     r"(az|kubectl|docker|git|helm)(\s|$)|[A-Z][a-z]+-[A-Z][A-Za-z]+$|–[a-z]|--[a-z]|param\s"
@@ -223,20 +297,28 @@ def fix_option(opt: dict) -> dict:
     return opt
 
 
-def fix_questions(qs):
+def fix_questions(qs, exam=None):
+    """Clean a scraped bank; with `exam`, also apply reviewed overrides (scripts/overrides/)."""
     qs = fix_obj(qs)
     for q in qs:
         for k in ("question_html", "explanation_html"):
-            q[k] = format_code_blocks(q.get(k) or "")
+            q[k] = format_lists(format_code_blocks(q.get(k) or ""))
         q["options"] = [fix_option(o) for o in q.get("options", [])]
+    if exam:
+        from review_overrides import apply_overrides
+        qs = apply_overrides(qs, exam)
+        for q in qs:   # reviewed HTML may still carry "> item" pseudo-bullets
+            for k in ("question_html", "explanation_html"):
+                q[k] = format_lists(q.get(k) or "")
     return qs
 
 
 if __name__ == "__main__":
-    import json, sys
+    import json, os, sys
     for path in sys.argv[1:]:
         with open(path, encoding="utf-8") as f:
             data = json.load(f)
+        exam = os.path.basename(os.path.dirname(os.path.abspath(path)))
         with open(path, "w", encoding="utf-8") as f:
-            json.dump(fix_questions(data), f, ensure_ascii=False, separators=(",", ":"))
+            json.dump(fix_questions(data, exam), f, ensure_ascii=False, separators=(",", ":"))
         print("fixed", path)

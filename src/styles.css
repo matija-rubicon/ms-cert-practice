@@ -335,6 +335,8 @@ button[disabled] { opacity: .5; cursor: not-allowed; }
 .q-text pre code, .explanation pre code { background: none; padding: 0; }
 .q-text img[data-broken], .explanation img[data-broken] { display: none !important; }
 .q-text a { color: var(--azure); }
+.q-text ul, .explanation ul { margin: 6px 0 12px; padding-left: 22px; }
+.q-text li, .explanation li { margin: 3px 0; }
 
 .options { list-style: none; padding: 0; margin: 0; }
 .options li { margin-bottom: 8px; }

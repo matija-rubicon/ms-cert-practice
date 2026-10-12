@@ -1,6 +1,11 @@
 import type { Question, DomainConfig } from "../types";
 import { domainForCategory } from "./scoring";
 
+/** Questions that can be served in a quiz. */
+export function playable(questions: Question[]): Question[] {
+  return questions.filter((q) => !q.disabled);
+}
+
 export function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {

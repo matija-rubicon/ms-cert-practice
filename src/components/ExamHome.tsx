@@ -3,6 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import type { ExamManifest, Question } from "../types";
 import { historyForExam } from "../lib/storage";
 import { fmtDate } from "../lib/format";
+import { playable } from "../lib/sampling";
 
 interface Props { manifest: ExamManifest; }
 
@@ -31,7 +32,7 @@ export default function ExamHome({ manifest }: Props) {
     setExamMin(exam.defaultTimeMinutes);
     fetch(`exams/${exam.id}/questions.json`)
       .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then((qs: Question[]) => setBank({ loading: false, questions: qs }))
+      .then((qs: Question[]) => setBank({ loading: false, questions: playable(qs) }))
       .catch((e) => setBank({ loading: false, error: String(e.message || e) }));
   }, [examId, exam]);
 

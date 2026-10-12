@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { ExamManifest, Question, Attempt, SessionMode, QuestionScore, DomainBreakdown } from "../types";
-import { buildRandomExam, buildWeightedExam } from "../lib/sampling";
+import { buildRandomExam, buildWeightedExam, playable } from "../lib/sampling";
 import { scoreQuestion, toScaled, domainForCategory } from "../lib/scoring";
 import { saveAttempt } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
@@ -49,7 +49,8 @@ export default function Quiz({ manifest }: Props) {
 
     fetch(`exams/${exam.id}/questions.json`)
       .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
-      .then((qs: Question[]) => {
+      .then((all: Question[]) => {
+        const qs = playable(all);
         const questions = cfg.mode === "exam"
           ? buildWeightedExam(qs, exam.domains, cfg.count)
           : buildRandomExam(qs, cfg.count, cfg.category || "all");

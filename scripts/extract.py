@@ -246,7 +246,7 @@ def main():
     print("Types:", types)
     print("Categories:", cats)
     print("No options:", no_opts)
-    OUT.write_text(json.dumps(fix_questions(qs), ensure_ascii=False, indent=None, separators=(",", ":")), encoding="utf-8")
+    OUT.write_text(json.dumps(fix_questions(qs, EXAM_ID), ensure_ascii=False, indent=None, separators=(",", ":")), encoding="utf-8")
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
 
     # Image inventory: list every basename referenced post-rewrite.
