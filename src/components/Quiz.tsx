@@ -72,6 +72,10 @@ export default function Quiz({ manifest }: Props) {
       .catch((e) => setLoadError(String(e.message || e)));
   }, [exam, nav]);
 
+  // Jump back to the top whenever the user moves to another question
+  const current = state?.current;
+  useEffect(() => { window.scrollTo(0, 0); }, [current]);
+
   // Timer tick
   useEffect(() => {
     if (!state || !state.timeLimitMs) return;

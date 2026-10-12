@@ -15,6 +15,8 @@ import sys
 from html.parser import HTMLParser
 from pathlib import Path
 
+from textfix import fix_obj
+
 if len(sys.argv) < 2:
     print(__doc__)
     sys.exit(1)
@@ -244,7 +246,7 @@ def main():
     print("Types:", types)
     print("Categories:", cats)
     print("No options:", no_opts)
-    OUT.write_text(json.dumps(qs, ensure_ascii=False, indent=None, separators=(",", ":")), encoding="utf-8")
+    OUT.write_text(json.dumps(fix_obj(qs), ensure_ascii=False, indent=None, separators=(",", ":")), encoding="utf-8")
     print(f"Wrote {OUT} ({OUT.stat().st_size} bytes)")
 
     # Image inventory: list every basename referenced post-rewrite.

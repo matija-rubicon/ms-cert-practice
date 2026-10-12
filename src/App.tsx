@@ -6,6 +6,7 @@ import ExamHome from "./components/ExamHome";
 import Quiz from "./components/Quiz";
 import Results from "./components/Results";
 import History from "./components/History";
+import { useTheme } from "./lib/theme";
 
 interface LoadState {
   loading: boolean;
@@ -25,6 +26,10 @@ export default function App() {
       .then((manifest: ExamManifest) => setState({ loading: false, manifest }))
       .catch((e) => setState({ loading: false, error: String(e.message || e) }));
   }, []);
+
+  // Start every route (e.g. quiz → results) at the top of the page
+  const { pathname } = useLocation();
+  useEffect(() => { window.scrollTo(0, 0); }, [pathname]);
 
   return (
     <>
@@ -66,6 +71,7 @@ function AppHeader({ manifest }: { manifest?: ExamManifest }) {
   const examId = match?.params.examId;
   const exam = manifest?.exams.find((e) => e.id === examId);
   const inQuiz = loc.pathname.endsWith("/quiz");
+  const [theme, setTheme] = useTheme();
   const goHome = () => {
     if (inQuiz && !window.confirm("Leave the quiz? Your progress will be lost.")) return;
     nav("/");
@@ -74,6 +80,14 @@ function AppHeader({ manifest }: { manifest?: ExamManifest }) {
     <header>
       <h1 onClick={goHome}>MS Cert Practice</h1>
       {exam && <span className="crumb">{exam.code}</span>}
+      <button
+        className="theme-toggle"
+        onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+        aria-label={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+        title={`Switch to ${theme === "dark" ? "light" : "dark"} mode`}
+      >
+        {theme === "dark" ? "☀ Light" : "☾ Dark"}
+      </button>
     </header>
   );
 }
