@@ -47,7 +47,7 @@ Answer keys were **not** changed by the review; these are for a human to check.
 - **q194** — Question asks for 2 ways; option C (post-deployment gate after QA) vs D (pre-deployment gate before production) - answer key C and D taken from source; option C is questionable since the requirement is to process a change request before production release.
 - **q303** — Explanation says "Answer – D" (Stakeholder) but the key marks A (Basic) correct and the explanation text itself says Basic; the letter in the explanation is wrong.
 - **q365** — Question refers to an external case study (Google Docs link) that is not included; the question itself is answerable from its options.
-- **q492** — Explanation ends with scraped junk "Ask our Experts" (left in place to keep visible text unchanged).
+- **q492** — Explanation ends with scraped junk " " (left in place to keep visible text unchanged).
 - **q513** — Explanation says "service hook" but the correct option is "A service connection" (explanation text inconsistent with the key; key itself looks right).
 - **q514** — Image shows Task1..Task4 and the key (D, VSBuild Task) matches Task2 given q515 (Task3=Analyze) and q516 (Task4=Publish) with Task1=Prepare; but the explanation text claims VSBuild is "Task1" and that Prepare is not first, which contradicts the key/series. Explanation needs a human rewrite.
 - **q531** — Case study not included, but the question is answerable from the image (AppCenter.Start typeof slots).

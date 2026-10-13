@@ -297,6 +297,43 @@ def fix_option(opt: dict) -> dict:
     return opt
 
 
+# ---------------------------------------------------------------------------
+# Source-vendor names: the banks were scraped from third-party practice sites.
+# Replace their fictional company names with Microsoft's standard ones and drop
+# site leftovers (saved-page links, "Ask our Experts", image-name prefixes).
+
+_VENDOR = [
+    (re.compile(r"skill\s*cert\s*pro-(?=[\w.-]+\.(?:png|jpe?g|gif|svg|webp)\b)", re.I), lambda m: ""),
+    (re.compile(r"skill\s*cert\s*(?:pro\s*tore|lab\s*store)", re.I), "contosostore"),
+    (re.compile(r"skill\s*cert\s*(?:labs?|pro)", re.I), "contoso"),
+    (re.compile(r"rohit\s*co", re.I), "fabrikam"),
+]
+_SAVED_PAGE_LINK = re.compile(r'<a\s[^>]*href="\./[^"]*_files/[^"]*"[^>]*>(.*?)</a>', re.S | re.I)
+_EXPERTS = re.compile(r"\s*Ask our Experts\s*", re.I)
+
+
+def _match_case(word: str, original: str) -> str:
+    return word[:1].upper() + word[1:] if original[:1].isupper() else word
+
+
+def scrub_vendor(s: str) -> str:
+    s = _SAVED_PAGE_LINK.sub(r"\1", s)
+    s = _EXPERTS.sub(" ", s).replace("<p> </p>", "")
+    for pat, repl in _VENDOR:
+        s = pat.sub(repl if callable(repl) else (lambda m, r=repl: _match_case(r, m.group(0))), s)
+    return s
+
+
+def scrub_obj(obj):
+    if isinstance(obj, str):
+        return scrub_vendor(obj)
+    if isinstance(obj, list):
+        return [scrub_obj(x) for x in obj]
+    if isinstance(obj, dict):
+        return {k: scrub_obj(v) for k, v in obj.items()}
+    return obj
+
+
 def fix_questions(qs, exam=None):
     """Clean a scraped bank; with `exam`, also apply reviewed overrides (scripts/overrides/)."""
     qs = fix_obj(qs)
@@ -310,7 +347,7 @@ def fix_questions(qs, exam=None):
         for q in qs:   # reviewed HTML may still carry "> item" pseudo-bullets
             for k in ("question_html", "explanation_html"):
                 q[k] = format_lists(q.get(k) or "")
-    return qs
+    return scrub_obj(qs)
 
 
 if __name__ == "__main__":

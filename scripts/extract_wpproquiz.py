@@ -1,14 +1,14 @@
 #!/usr/bin/env python3
 """
-Extract skillcertpro WP-Pro-Quiz HTML dumps into questions.json.
+Extract WP-Pro-Quiz HTML dumps into questions.json.
 
-Handles the raw "Answer Review" summary pages saved from skillcertpro
-(WordPress wpProQuiz plugin). Reads every *.html in a directory, dedups
+Handles the raw "Answer Review" summary pages saved from a practice-test
+site (WordPress wpProQuiz plugin). Reads every *.html in a directory, dedups
 questions across exams, auto-classifies each into an exam domain, and
 writes public/exams/<exam-id>/questions.json.
 
 Usage:
-  python3 scripts/extract_skillcertpro.py <dir-with-html> [exam-id]
+  python3 scripts/extract_wpproquiz.py <dir-with-html> [exam-id]
 
   <dir-with-html>  folder containing exam1.html, exam2.html, ...
   exam-id          default: az104

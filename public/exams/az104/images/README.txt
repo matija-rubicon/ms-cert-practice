@@ -1,1 +1,1 @@
-Images extracted from skillcertpro saved pages.
+Images extracted from saved WP-Pro-Quiz pages.

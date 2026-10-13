@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Extract skillcertpro AZ-400 HTML dump into questions.json.
+Extract the AZ-400 practice-test HTML dump into questions.json.
 
 Usage:
   python3 scripts/extract.py <path-to-html> [exam-id]
