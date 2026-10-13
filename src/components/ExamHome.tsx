@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import type { ExamManifest, Question } from "../types";
-import { historyForExam, clearSession } from "../lib/storage";
+import { historyForExam, clearSession, loadSession } from "../lib/storage";
 import { fmtDate } from "../lib/format";
 import { playable, questionPool } from "../lib/sampling";
 import InfoModal from "./InfoModal";
+import Modal from "./Modal";
 
 interface Props { manifest: ExamManifest; }
 
@@ -28,6 +29,8 @@ export default function ExamHome({ manifest }: Props) {
   const [quickCat, setQuickCat] = useState("all");
   const [bankOnly, setBankOnly] = useState(true);
   const [scoringOpen, setScoringOpen] = useState(false);
+  // A start that would replace an in-progress session waits for confirmation
+  const [pendingStart, setPendingStart] = useState<(() => void) | null>(null);
 
   useEffect(() => {
     if (!exam) return;
@@ -84,6 +87,11 @@ export default function ExamHome({ manifest }: Props) {
       </span>
     </label>
   );
+
+  const guarded = (start: () => void) => () => {
+    if (loadSession(exam.id)) setPendingStart(() => start);
+    else start();
+  };
 
   const startExam = () => {
     clearSession(exam.id);
@@ -180,7 +188,7 @@ export default function ExamHome({ manifest }: Props) {
             <div></div>
             <div>
               <button className="btn-ghost" onClick={() => setSetup(null)}>Cancel</button>
-              <button className="btn-primary" onClick={startExam}>Start exam</button>
+              <button className="btn-primary" onClick={guarded(startExam)}>Start exam</button>
             </div>
           </div>
         </div>
@@ -210,10 +218,21 @@ export default function ExamHome({ manifest }: Props) {
             <div></div>
             <div>
               <button className="btn-ghost" onClick={() => setSetup(null)}>Cancel</button>
-              <button className="btn-primary" onClick={startQuick}>Start quiz</button>
+              <button className="btn-primary" onClick={guarded(startQuick)}>Start quiz</button>
             </div>
           </div>
         </div>
+      )}
+
+      {pendingStart && (
+        <Modal
+          title="Replace quiz in progress?"
+          body={`You have an unfinished ${exam.code} session. Starting a new one discards it without scoring.`}
+          confirmText="Start new"
+          confirmKind="btn-danger"
+          onCancel={() => setPendingStart(null)}
+          onConfirm={() => { const start = pendingStart; setPendingStart(null); start(); }}
+        />
       )}
 
       {scoringOpen && (

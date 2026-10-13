@@ -20,24 +20,24 @@ export default function ExamPicker({ manifest }: Props) {
           ⓘ About this app
         </button>
       </div>
-      <div className="mode-grid">
+      <div className="mode-grid exam-grid">
         {manifest.exams.map((e) => {
           const attempts = historyForExam(e.id).length;
           const card = (
             <>
               <div className="exam-code">{e.code}</div>
               <h3>{e.title}</h3>
-              <p>{e.description}</p>
+              <p className="exam-desc">{e.description}</p>
               <div className="exam-meta">
                 <span className={`exam-badge ${e.available ? "ready" : "coming"}`}>
                   {e.available ? "Ready" : "Coming soon"}
                 </span>
                 {e.available && (
-                  <>
+                  <span className="exam-meta-detail">
                     {" · "}
                     {e.defaultQuestionCount}q · {e.defaultTimeMinutes} min · pass {e.passingScaled}/1000
                     {attempts > 0 && <> · {attempts} attempt{attempts === 1 ? "" : "s"}</>}
-                  </>
+                  </span>
                 )}
               </div>
             </>

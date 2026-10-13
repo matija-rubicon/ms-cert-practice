@@ -97,7 +97,7 @@ export default function Quiz({ manifest }: Props) {
   useEffect(() => {
     if (!state || !exam) return;
     const { questions, ...rest } = state;
-    saveSession(exam.id, { ...rest, questionIds: questions.map((q) => q.id) });
+    saveSession(exam.id, { ...rest, questionIds: questions.map((q) => q.id), updatedAt: Date.now() });
   }, [state, exam]);
 
   // Jump back to the top whenever the user moves to another question
@@ -109,18 +109,6 @@ export default function Quiz({ manifest }: Props) {
     if (!state || !state.timeLimitMs) return;
     const iv = setInterval(() => setNow(Date.now()), 500);
     return () => clearInterval(iv);
-  }, [state]);
-
-  // Warn on tab close / refresh while quiz is in progress
-  useEffect(() => {
-    if (!state) return;
-    const handler = (e: BeforeUnloadEvent) => {
-      e.preventDefault();
-      e.returnValue = "";
-      return "";
-    };
-    window.addEventListener("beforeunload", handler);
-    return () => window.removeEventListener("beforeunload", handler);
   }, [state]);
 
   // Auto-submit when timer hits zero

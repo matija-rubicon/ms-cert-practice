@@ -6,6 +6,7 @@ import ExamHome from "./components/ExamHome";
 import Quiz from "./components/Quiz";
 import Results from "./components/Results";
 import History from "./components/History";
+import ResumeBar from "./components/ResumeBar";
 import { useTheme } from "./lib/theme";
 
 interface LoadState {
@@ -60,22 +61,19 @@ export default function App() {
           </Routes>
         )}
       </main>
+      {state.manifest && <ResumeBar manifest={state.manifest} />}
     </>
   );
 }
 
 function AppHeader({ manifest }: { manifest?: ExamManifest }) {
   const nav = useNavigate();
-  const loc = useLocation();
   const match = useMatch("/exam/:examId/*");
   const examId = match?.params.examId;
   const exam = manifest?.exams.find((e) => e.id === examId);
-  const inQuiz = loc.pathname.endsWith("/quiz");
   const [theme, setTheme] = useTheme();
-  const goHome = () => {
-    if (inQuiz && !window.confirm("Leave the quiz? Your progress will be lost.")) return;
-    nav("/");
-  };
+  // Progress is saved continuously; the resume bar brings the user back
+  const goHome = () => nav("/");
   return (
     <header>
       <h1 onClick={goHome}>MS Cert Practice</h1>

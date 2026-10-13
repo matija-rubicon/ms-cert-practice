@@ -43,6 +43,8 @@ export interface SavedSession {
   mode: "exam" | "quick";
   category: string | null;
   bankOnly?: boolean;
+  /** Last save time, to pick the most recent session */
+  updatedAt?: number;
 }
 
 const sessionKey = (examId: string) => `mscert.session.${examId}`;
