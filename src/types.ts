@@ -18,6 +18,8 @@ export interface Question {
   /** Can't be answered as presented (e.g. exhibit missing); excluded from quizzes. */
   disabled?: boolean;
   disabled_reason?: string;
+  /** Original question written for this app (not from the scraped bank). */
+  authored?: boolean;
 }
 
 export interface DomainConfig {

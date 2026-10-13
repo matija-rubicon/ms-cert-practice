@@ -347,6 +347,9 @@ def fix_questions(qs, exam=None):
         for q in qs:   # reviewed HTML may still carry "> item" pseudo-bullets
             for k in ("question_html", "explanation_html"):
                 q[k] = format_lists(q.get(k) or "")
+        # Original questions (scripts/authored/) are appended after the scraped ones
+        from authored_questions import load_authored
+        qs = [q for q in qs if not q.get("authored")] + load_authored(exam)
     return scrub_obj(qs)
 
 
