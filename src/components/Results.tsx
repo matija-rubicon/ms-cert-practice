@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type { ExamManifest, Attempt, Question } from "../types";
-import { loadHistory } from "../lib/storage";
+import { loadHistory, clearSession } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
 import { renderHtml } from "../lib/html";
 
@@ -70,6 +70,7 @@ export default function Results({ manifest, reviewMode = false }: Props) {
       const cfg = r.mode === "exam"
         ? { mode: "exam", count: r.questionCount, minutes: r.timeLimitMs ? r.timeLimitMs / 60000 : exam.defaultTimeMinutes }
         : { mode: "quick", count: r.questionCount, category: r.category || "all" };
+      clearSession(exam.id);
       sessionStorage.setItem(`mscert.start.${exam.id}`, JSON.stringify(cfg));
       nav(`/exam/${exam.id}/quiz`);
     }

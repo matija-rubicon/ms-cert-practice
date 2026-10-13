@@ -30,3 +30,35 @@ export function clearHistory(): void {
 export function historyForExam(examId: string): Attempt[] {
   return loadHistory().filter((x) => x.examId === examId);
 }
+
+/** In-progress quiz, so an accidental refresh resumes instead of starting over. */
+export interface SavedSession {
+  questionIds: string[];
+  answers: number[][];
+  flags: boolean[];
+  revealed: boolean[];
+  current: number;
+  startedAt: number;
+  timeLimitMs: number | null;
+  mode: "exam" | "quick";
+  category: string | null;
+}
+
+const sessionKey = (examId: string) => `mscert.session.${examId}`;
+
+export function loadSession(examId: string): SavedSession | null {
+  try {
+    const raw = localStorage.getItem(sessionKey(examId));
+    return raw ? JSON.parse(raw) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function saveSession(examId: string, s: SavedSession): void {
+  try { localStorage.setItem(sessionKey(examId), JSON.stringify(s)); } catch { /* storage full/blocked */ }
+}
+
+export function clearSession(examId: string): void {
+  try { localStorage.removeItem(sessionKey(examId)); } catch { /* ignore */ }
+}

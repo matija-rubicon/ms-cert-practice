@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate, useParams, Link } from "react-router-dom";
 import type { ExamManifest, Question } from "../types";
-import { historyForExam } from "../lib/storage";
+import { historyForExam, clearSession } from "../lib/storage";
 import { fmtDate } from "../lib/format";
 import { playable } from "../lib/sampling";
 
@@ -70,6 +70,7 @@ export default function ExamHome({ manifest }: Props) {
   const cats = ["all", ...Object.keys(totalByCat).sort()];
 
   const startExam = () => {
+    clearSession(exam.id);
     sessionStorage.setItem(
       `mscert.start.${exam.id}`,
       JSON.stringify({ mode: "exam", count: examCount, minutes: examMin })
@@ -77,6 +78,7 @@ export default function ExamHome({ manifest }: Props) {
     nav(`/exam/${exam.id}/quiz`);
   };
   const startQuick = () => {
+    clearSession(exam.id);
     sessionStorage.setItem(
       `mscert.start.${exam.id}`,
       JSON.stringify({ mode: "quick", count: quickCount, category: quickCat })

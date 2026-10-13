@@ -3,7 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import type { ExamManifest, Question, Attempt, SessionMode, QuestionScore, DomainBreakdown } from "../types";
 import { buildRandomExam, buildWeightedExam, playable } from "../lib/sampling";
 import { scoreQuestion, toScaled, domainForCategory } from "../lib/scoring";
-import { saveAttempt } from "../lib/storage";
+import { saveAttempt, loadSession, saveSession, clearSession } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
 import { renderHtml } from "../lib/html";
 import Modal from "./Modal";
@@ -42,14 +42,30 @@ export default function Quiz({ manifest }: Props) {
   useEffect(() => {
     if (initialized.current || !exam) return;
     initialized.current = true;
+    const saved = loadSession(exam.id);
     const raw = sessionStorage.getItem(`mscert.start.${exam.id}`);
-    if (!raw) { nav(`/exam/${exam.id}`, { replace: true }); return; }
-    let cfg: StartConfig;
-    try { cfg = JSON.parse(raw); } catch { nav(`/exam/${exam.id}`, { replace: true }); return; }
+    if (!saved && !raw) { nav(`/exam/${exam.id}`, { replace: true }); return; }
+    let cfg: StartConfig = { mode: "quick", count: 0 };
+    if (!saved) {
+      try { cfg = JSON.parse(raw!); } catch { nav(`/exam/${exam.id}`, { replace: true }); return; }
+    }
 
     fetch(`exams/${exam.id}/questions.json`)
       .then((r) => { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then((all: Question[]) => {
+        // Resume an in-progress session (e.g. after an accidental refresh)
+        if (saved) {
+          const byId = new Map(all.map((q) => [q.id, q]));
+          const resumed = saved.questionIds.map((id) => byId.get(id));
+          if (resumed.length > 0 && resumed.every(Boolean)) {
+            const { questionIds: _ids, ...rest } = saved;
+            setState({ ...rest, questions: resumed as Question[] });
+            return;
+          }
+          clearSession(exam.id);
+          if (!raw) { nav(`/exam/${exam.id}`, { replace: true }); return; }
+          try { cfg = JSON.parse(raw); } catch { nav(`/exam/${exam.id}`, { replace: true }); return; }
+        }
         const qs = playable(all);
         const questions = cfg.mode === "exam"
           ? buildWeightedExam(qs, exam.domains, cfg.count)
@@ -72,6 +88,13 @@ export default function Quiz({ manifest }: Props) {
       })
       .catch((e) => setLoadError(String(e.message || e)));
   }, [exam, nav]);
+
+  // Persist progress on every change
+  useEffect(() => {
+    if (!state || !exam) return;
+    const { questions, ...rest } = state;
+    saveSession(exam.id, { ...rest, questionIds: questions.map((q) => q.id) });
+  }, [state, exam]);
 
   // Jump back to the top whenever the user moves to another question
   const current = state?.current;
@@ -211,6 +234,7 @@ export default function Quiz({ manifest }: Props) {
     };
 
     if (state.mode === "exam" || total >= 10) saveAttempt(attempt);
+    clearSession(exam.id);
     sessionStorage.setItem(`mscert.last.${exam.id}`, JSON.stringify(attempt));
     sessionStorage.setItem(`mscert.lastqs.${exam.id}`, JSON.stringify(state.questions));
     nav(`/exam/${exam.id}/results`);
