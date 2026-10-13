@@ -4,6 +4,7 @@ import type { ExamManifest, Question } from "../types";
 import { historyForExam, clearSession } from "../lib/storage";
 import { fmtDate } from "../lib/format";
 import { playable, questionPool } from "../lib/sampling";
+import InfoModal from "./InfoModal";
 
 interface Props { manifest: ExamManifest; }
 
@@ -26,6 +27,7 @@ export default function ExamHome({ manifest }: Props) {
   const [quickCount, setQuickCount] = useState(20);
   const [quickCat, setQuickCat] = useState("all");
   const [bankOnly, setBankOnly] = useState(true);
+  const [scoringOpen, setScoringOpen] = useState(false);
 
   useEffect(() => {
     if (!exam) return;
@@ -117,6 +119,9 @@ export default function ExamHome({ manifest }: Props) {
         ) : (
           <p className="hint">No attempts yet for this exam.</p>
         )}
+        <button type="button" className="link-btn" onClick={() => setScoringOpen(true)}>
+          ⓘ How scoring works
+        </button>
       </div>
 
       <div className="mode-grid">
@@ -211,18 +216,19 @@ export default function ExamHome({ manifest }: Props) {
         </div>
       )}
 
-      <div className="card">
-        <h3>How scoring works</h3>
-        <p style={{ marginTop: 6 }}>
-          <strong>{exam.passingScaled}/1000 to pass</strong> — Microsoft uses a scaled score, not a raw percentage. On the real exam, harder forms require fewer raw correct answers to hit the threshold; easier forms require more. This app approximates that as <code>scaled = round((earned / max) × 1000)</code> with no negative scoring.
-        </p>
-        <p>
-          <strong>Partial credit</strong> — multi-select questions award 1 point per option matched correctly (correct picked, or wrong not picked). A 3-option multi where you got 2 of 3 right earns 2/3 points. Single-answer questions are 1 point all-or-nothing.
-        </p>
-        <p>
-          <strong>Domain weights</strong> — full exam mode samples questions in proportion to the official exam blueprint, so a single 50-question run reflects the real domain distribution.
-        </p>
-      </div>
+      {scoringOpen && (
+        <InfoModal title="How scoring works" onClose={() => setScoringOpen(false)}>
+          <p>
+            <strong>{exam.passingScaled}/1000 to pass</strong> — Microsoft uses a scaled score, not a raw percentage. On the real exam, harder forms require fewer raw correct answers to hit the threshold; easier forms require more. This app approximates that as <code>scaled = round((earned / max) × 1000)</code> with no negative scoring.
+          </p>
+          <p>
+            <strong>Partial credit</strong> — multi-select questions award 1 point per option matched correctly (correct picked, or wrong not picked). A 3-option multi where you got 2 of 3 right earns 2/3 points. Single-answer questions are 1 point all-or-nothing.
+          </p>
+          <p>
+            <strong>Domain weights</strong> — full exam mode samples questions in proportion to the official exam blueprint, so a single 50-question run reflects the real domain distribution.
+          </p>
+        </InfoModal>
+      )}
     </>
   );
 }

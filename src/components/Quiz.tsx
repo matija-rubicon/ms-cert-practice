@@ -302,7 +302,13 @@ export default function Quiz({ manifest }: Props) {
           <div className="nav-row">
             <div>
               <button className="btn-ghost" disabled={i === 0} onClick={() => goto(i - 1)}>← Prev</button>
-              <button className="btn-secondary" disabled={i === total - 1} onClick={() => goto(i + 1)}>Next →</button>
+              {i < total - 1 ? (
+                <button className="btn-secondary" onClick={() => goto(i + 1)}>Next →</button>
+              ) : (
+                <button className="btn-primary" onClick={() => setSubmitOpen(true)}>
+                  {state.mode === "exam" ? "Submit exam" : "Finish & score"}
+                </button>
+              )}
             </div>
             <div>
               {state.mode === "quick" && !revealed && (

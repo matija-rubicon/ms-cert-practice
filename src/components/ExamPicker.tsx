@@ -1,10 +1,13 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import type { ExamManifest } from "../types";
 import { historyForExam } from "../lib/storage";
+import InfoModal from "./InfoModal";
 
 interface Props { manifest: ExamManifest; }
 
 export default function ExamPicker({ manifest }: Props) {
+  const [aboutOpen, setAboutOpen] = useState(false);
   return (
     <>
       <div className="card">
@@ -13,6 +16,9 @@ export default function ExamPicker({ manifest }: Props) {
           Pick an exam. Each exam ships its own question bank, domain weights, time limit,
           and scoring threshold. Pass mark is the official Microsoft scaled score (default 700/1000).
         </p>
+        <button type="button" className="link-btn" onClick={() => setAboutOpen(true)}>
+          ⓘ About this app
+        </button>
       </div>
       <div className="mode-grid">
         {manifest.exams.map((e) => {
@@ -45,19 +51,20 @@ export default function ExamPicker({ manifest }: Props) {
           );
         })}
       </div>
-      <div className="card">
-        <h3>About this app</h3>
-        <p style={{ marginTop: 6 }}>
-          Multi-exam practice tool that approximates Microsoft's scoring model: partial credit
-          on multi-select questions, scaled <code>0–1000</code> output, 700-to-pass threshold.
-          Each exam's history lives in <code>localStorage</code> on this browser.
-        </p>
-        <p>
-          Adding a new exam: drop <code>questions.json</code> into{" "}
-          <code>public/exams/&lt;id&gt;/</code>, then add an entry to{" "}
-          <code>public/exams/manifest.json</code> with the domain mapping. No code change needed.
-        </p>
-      </div>
+      {aboutOpen && (
+        <InfoModal title="About this app" onClose={() => setAboutOpen(false)}>
+          <p>
+            Multi-exam practice tool that approximates Microsoft's scoring model: partial credit
+            on multi-select questions, scaled <code>0–1000</code> output, 700-to-pass threshold.
+            Each exam's history lives in <code>localStorage</code> on this browser.
+          </p>
+          <p>
+            Adding a new exam: drop <code>questions.json</code> into{" "}
+            <code>public/exams/&lt;id&gt;/</code>, then add an entry to{" "}
+            <code>public/exams/manifest.json</code> with the domain mapping. No code change needed.
+          </p>
+        </InfoModal>
+      )}
     </>
   );
 }

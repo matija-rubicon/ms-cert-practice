@@ -518,6 +518,27 @@ button[disabled] { opacity: .5; cursor: not-allowed; }
   width: 100%;
 }
 .modal h3 { margin-top: 0; }
+.info-modal {
+  max-width: 560px;
+  max-height: calc(100vh - 32px);
+  max-height: calc(100dvh - 32px);
+  display: flex;
+  flex-direction: column;
+}
+.info-modal-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+.info-modal-head h3 { margin-bottom: 8px; }
+.info-modal-x { border: none; font-size: 22px; line-height: 1; padding: 2px 8px; margin: -4px -8px 0 0; }
+.info-modal-body { overflow-y: auto; font-size: 14.5px; }
+.info-modal-body p:first-child { margin-top: 0; }
+.link-btn {
+  background: none;
+  border: none;
+  padding: 0;
+  color: var(--azure);
+  font-size: 13.5px;
+  cursor: pointer;
+}
+.link-btn:hover { text-decoration: underline; }
 .modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
 
 .toast {
