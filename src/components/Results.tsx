@@ -1,9 +1,10 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import type { ExamManifest, Attempt, Question } from "../types";
 import { loadHistory, clearSession } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
 import { renderHtml } from "../lib/html";
+import { domainForCategory } from "../lib/scoring";
 
 interface Props { manifest: ExamManifest; reviewMode?: boolean; }
 
@@ -18,6 +19,10 @@ export default function Results({ manifest, reviewMode = false }: Props) {
   const exam = manifest.exams.find((e) => e.id === examId);
   const nav = useNavigate();
   const [state, setState] = useState<LoadedState>({});
+  // Review list filters: domain picked in the breakdown, and missed-only vs all
+  const [domainFilter, setDomainFilter] = useState<string | null>(null);
+  const [missedOnly, setMissedOnly] = useState(true);
+  const listRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!exam) return;
@@ -60,9 +65,19 @@ export default function Results({ manifest, reviewMode = false }: Props) {
   const partialCount = r.perQ.filter((x) => !x.fullyCorrect && x.earned > 0).length;
   const wrongCount = r.perQ.filter((x) => x.earned === 0).length;
 
-  const wrongQs = r.perQ
-    .map((s, idx) => ({ s, idx, q: questions[idx], picked: r.answers[idx] }))
-    .filter((x) => !x.s.fullyCorrect);
+  const allQs = r.perQ.map((s, idx) => ({
+    s, idx, q: questions[idx], picked: r.answers[idx],
+    domain: domainForCategory(exam.domains, questions[idx].category),
+  }));
+  const missedCount = allQs.filter((x) => !x.s.fullyCorrect).length;
+  const shownQs = allQs
+    .filter((x) => !missedOnly || !x.s.fullyCorrect)
+    .filter((x) => !domainFilter || x.domain === domainFilter);
+
+  const pickDomain = (name: string) => {
+    setDomainFilter((d) => (d === name ? null : name));
+    requestAnimationFrame(() => listRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }));
+  };
 
   const retake = () => {
     if (state.questions && exam) {
@@ -103,18 +118,25 @@ export default function Results({ manifest, reviewMode = false }: Props) {
 
         <div className="card">
           <h3>Breakdown by domain</h3>
+          <p className="hint">Tap a domain to review its questions.</p>
           {Object.entries(r.perDomain)
             .sort((a, b) => b[1].count - a[1].count)
             .map(([name, s]) => {
               const pct = s.max > 0 ? Math.round((s.earned / s.max) * 100) : 0;
               const color = pct >= 70 ? "var(--green)" : pct >= 50 ? "var(--amber)" : "var(--red)";
               return (
-                <div className="breakdown-row" key={name}>
+                <button
+                  type="button"
+                  className={`breakdown-row${domainFilter === name ? " active" : ""}`}
+                  key={name}
+                  aria-pressed={domainFilter === name}
+                  onClick={() => pickDomain(name)}
+                >
                   <div>{name}</div>
                   <div>{s.correct}/{s.count}</div>
                   <div style={{ textAlign: "right", color, fontWeight: 600 }}>{pct}%</div>
                   <div className="breakdown-bar"><div style={{ width: `${pct}%`, background: color }} /></div>
-                </div>
+                </button>
               );
             })}
           <div className="nav-row" style={{ marginTop: 22 }}>
@@ -131,20 +153,43 @@ export default function Results({ manifest, reviewMode = false }: Props) {
         </div>
       </div>
 
-      <div className="page" style={{ marginTop: 16 }}>
-      {wrongQs.length > 0 ? (
-        <>
-          <div className="card">
-            <h3>Review missed questions ({wrongQs.length})</h3>
+      <div className="page" style={{ marginTop: 16 }} ref={listRef}>
+          <div className="card review-head">
+            <h3>
+              {missedOnly ? "Missed questions" : "All questions"}
+              {domainFilter && <> · {domainFilter}</>} ({shownQs.length})
+            </h3>
+            <div className="review-filters">
+              <div className="seg" role="group" aria-label="Show">
+                <button className={missedOnly ? "on" : ""} aria-pressed={missedOnly} onClick={() => setMissedOnly(true)}>
+                  Missed ({missedCount})
+                </button>
+                <button className={!missedOnly ? "on" : ""} aria-pressed={!missedOnly} onClick={() => setMissedOnly(false)}>
+                  All ({allQs.length})
+                </button>
+              </div>
+              {domainFilter && (
+                <button className="chip" onClick={() => setDomainFilter(null)} aria-label="Clear domain filter">
+                  {domainFilter} ×
+                </button>
+              )}
+            </div>
             <p className="hint">Your wrong picks are red, correct answers you missed are dashed green.</p>
           </div>
-          {wrongQs.map(({ s, idx, q, picked }) => (
+          {shownQs.length === 0 && (
+            <div className="card">
+              <p className="hint" style={{ margin: 0 }}>
+                {missedOnly ? "Nothing missed here — all correct." : "No questions in this domain."}
+              </p>
+            </div>
+          )}
+          {shownQs.map(({ s, idx, q, picked }) => (
             <div className="card" key={idx}>
               <div className="q-header">
                 <span className="q-num">Q{idx + 1}</span>
                 <span className="q-cat">{q.category}</span>
                 {q.type === "multiple" && <span className="q-multi">Multi-select</span>}
-                <span style={{ marginLeft: "auto", fontSize: 12, color: s.earned > 0 ? "var(--amber)" : "var(--red)", fontWeight: 600 }}>
+                <span style={{ marginLeft: "auto", fontSize: 12, color: s.fullyCorrect ? "var(--green)" : s.earned > 0 ? "var(--amber)" : "var(--red)", fontWeight: 600 }}>
                   {s.earned}/{s.max} pts
                 </span>
               </div>
@@ -174,10 +219,6 @@ export default function Results({ manifest, reviewMode = false }: Props) {
               )}
             </div>
           ))}
-        </>
-      ) : (
-        <div className="card"><h3>No missed questions — perfect score!</h3></div>
-      )}
       </div>
     </>
   );
