@@ -6,6 +6,11 @@ export function playable(questions: Question[]): Question[] {
   return questions.filter((q) => !q.disabled);
 }
 
+/** Optionally leave out the original questions written for this app. */
+export function questionPool(questions: Question[], bankOnly: boolean): Question[] {
+  return bankOnly ? questions.filter((q) => !q.authored) : questions;
+}
+
 export function shuffle<T>(arr: T[]): T[] {
   const a = arr.slice();
   for (let i = a.length - 1; i > 0; i--) {

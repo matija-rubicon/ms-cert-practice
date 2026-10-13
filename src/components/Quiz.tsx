@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import type { ExamManifest, Question, Attempt, SessionMode, QuestionScore, DomainBreakdown } from "../types";
-import { buildRandomExam, buildWeightedExam, playable } from "../lib/sampling";
+import { buildRandomExam, buildWeightedExam, playable, questionPool } from "../lib/sampling";
 import { scoreQuestion, toScaled, domainForCategory } from "../lib/scoring";
 import { saveAttempt, loadSession, saveSession, clearSession } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
@@ -14,6 +14,8 @@ interface StartConfig {
   count: number;
   minutes?: number;
   category?: string;
+  /** Leave out authored (non-bank) questions */
+  bankOnly?: boolean;
 }
 
 interface QuizState {
@@ -26,6 +28,7 @@ interface QuizState {
   timeLimitMs: number | null;
   mode: SessionMode;
   category: string | null;
+  bankOnly: boolean;
 }
 
 export default function Quiz({ manifest }: Props) {
@@ -59,14 +62,14 @@ export default function Quiz({ manifest }: Props) {
           const resumed = saved.questionIds.map((id) => byId.get(id));
           if (resumed.length > 0 && resumed.every(Boolean)) {
             const { questionIds: _ids, ...rest } = saved;
-            setState({ ...rest, questions: resumed as Question[] });
+            setState({ ...rest, bankOnly: rest.bankOnly ?? false, questions: resumed as Question[] });
             return;
           }
           clearSession(exam.id);
           if (!raw) { nav(`/exam/${exam.id}`, { replace: true }); return; }
           try { cfg = JSON.parse(raw); } catch { nav(`/exam/${exam.id}`, { replace: true }); return; }
         }
-        const qs = playable(all);
+        const qs = questionPool(playable(all), cfg.bankOnly ?? false);
         const questions = cfg.mode === "exam"
           ? buildWeightedExam(qs, exam.domains, cfg.count)
           : buildRandomExam(qs, cfg.count, cfg.category || "all");
@@ -84,6 +87,7 @@ export default function Quiz({ manifest }: Props) {
           timeLimitMs: cfg.mode === "exam" && cfg.minutes ? cfg.minutes * 60 * 1000 : null,
           mode: cfg.mode,
           category: cfg.category || null,
+          bankOnly: cfg.bankOnly ?? false,
         });
       })
       .catch((e) => setLoadError(String(e.message || e)));
@@ -223,6 +227,7 @@ export default function Quiz({ manifest }: Props) {
       durationMs: Date.now() - state.startedAt,
       mode: state.mode,
       category: state.category,
+      bankOnly: state.bankOnly,
       timeLimitMs: state.timeLimitMs,
       questionCount: total,
       earned, max, scaled,

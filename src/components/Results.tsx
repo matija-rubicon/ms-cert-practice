@@ -68,8 +68,8 @@ export default function Results({ manifest, reviewMode = false }: Props) {
     if (state.questions && exam) {
       // Stash a "retake set" config + re-run by feeding sessionStorage like a normal start
       const cfg = r.mode === "exam"
-        ? { mode: "exam", count: r.questionCount, minutes: r.timeLimitMs ? r.timeLimitMs / 60000 : exam.defaultTimeMinutes }
-        : { mode: "quick", count: r.questionCount, category: r.category || "all" };
+        ? { mode: "exam", count: r.questionCount, minutes: r.timeLimitMs ? r.timeLimitMs / 60000 : exam.defaultTimeMinutes, bankOnly: r.bankOnly }
+        : { mode: "quick", count: r.questionCount, category: r.category || "all", bankOnly: r.bankOnly };
       clearSession(exam.id);
       sessionStorage.setItem(`mscert.start.${exam.id}`, JSON.stringify(cfg));
       nav(`/exam/${exam.id}/quiz`);

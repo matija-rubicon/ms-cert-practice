@@ -3,7 +3,7 @@ import { useNavigate, useParams, Link } from "react-router-dom";
 import type { ExamManifest, Question } from "../types";
 import { historyForExam, clearSession } from "../lib/storage";
 import { fmtDate } from "../lib/format";
-import { playable } from "../lib/sampling";
+import { playable, questionPool } from "../lib/sampling";
 
 interface Props { manifest: ExamManifest; }
 
@@ -25,6 +25,7 @@ export default function ExamHome({ manifest }: Props) {
   const [examMin, setExamMin] = useState(0);
   const [quickCount, setQuickCount] = useState(20);
   const [quickCat, setQuickCat] = useState("all");
+  const [bankOnly, setBankOnly] = useState(true);
 
   useEffect(() => {
     if (!exam) return;
@@ -62,18 +63,31 @@ export default function ExamHome({ manifest }: Props) {
     </div>
   );
 
-  const questions = bank.questions || [];
+  const allQuestions = bank.questions || [];
+  const authoredCount = allQuestions.filter((q) => q.authored).length;
+  const questions = questionPool(allQuestions, bankOnly);
   const history = historyForExam(exam.id);
   const last = history[0];
   const totalByCat: Record<string, number> = {};
   for (const q of questions) totalByCat[q.category] = (totalByCat[q.category] || 0) + 1;
   const cats = ["all", ...Object.keys(totalByCat).sort()];
+  const topic = cats.includes(quickCat) ? quickCat : "all";
+
+  const poolToggle = authoredCount > 0 && (
+    <label className="check-row">
+      <input type="checkbox" checked={bankOnly} onChange={(e) => setBankOnly(e.target.checked)} />
+      <span>
+        Only questions from the certification practice bank
+        <span className="hint"> — leaves out the {authoredCount} questions written by Claude</span>
+      </span>
+    </label>
+  );
 
   const startExam = () => {
     clearSession(exam.id);
     sessionStorage.setItem(
       `mscert.start.${exam.id}`,
-      JSON.stringify({ mode: "exam", count: examCount, minutes: examMin })
+      JSON.stringify({ mode: "exam", count: examCount, minutes: examMin, bankOnly })
     );
     nav(`/exam/${exam.id}/quiz`);
   };
@@ -81,7 +95,7 @@ export default function ExamHome({ manifest }: Props) {
     clearSession(exam.id);
     sessionStorage.setItem(
       `mscert.start.${exam.id}`,
-      JSON.stringify({ mode: "quick", count: quickCount, category: quickCat })
+      JSON.stringify({ mode: "quick", count: quickCount, category: topic, bankOnly })
     );
     nav(`/exam/${exam.id}/quiz`);
   };
@@ -91,7 +105,7 @@ export default function ExamHome({ manifest }: Props) {
       <div className="card">
         <h2>{exam.code}: {exam.title}</h2>
         <p className="hint">
-          {questions.length} questions in bank. Pass threshold: {exam.passingScaled}/1000 (≈{Math.round(exam.passingScaled / 10)}%).
+          {allQuestions.length} questions in bank{authoredCount > 0 && ` (${authoredCount} written by Claude)`}. Pass threshold: {exam.passingScaled}/1000 (≈{Math.round(exam.passingScaled / 10)}%).
           Default exam: {exam.defaultQuestionCount} questions in {exam.defaultTimeMinutes} minutes, weighted to match the official domain blueprint.
         </p>
         {last ? (
@@ -156,6 +170,7 @@ export default function ExamHome({ manifest }: Props) {
             Selection is stratified across exam domains:{" "}
             {exam.domains.map((d) => `${d.name} ${Math.round(d.weight * 100)}%`).join(" · ")}.
           </p>
+          {poolToggle}
           <div className="nav-row">
             <div></div>
             <div>
@@ -176,7 +191,7 @@ export default function ExamHome({ manifest }: Props) {
           </div>
           <div className="field-row">
             <label>Topic</label>
-            <select value={quickCat} onChange={(e) => setQuickCat(e.target.value)}>
+            <select value={topic} onChange={(e) => setQuickCat(e.target.value)}>
               {cats.map((c) => (
                 <option key={c} value={c}>
                   {c === "all" ? `All categories (${questions.length})` : `${c} (${totalByCat[c]})`}
@@ -185,6 +200,7 @@ export default function ExamHome({ manifest }: Props) {
             </select>
           </div>
           <p className="hint">Untimed. Instant feedback and explanations after each answer.</p>
+          {poolToggle}
           <div className="nav-row">
             <div></div>
             <div>

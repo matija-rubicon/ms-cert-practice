@@ -74,6 +74,8 @@ export interface Attempt {
   durationMs: number;
   mode: SessionMode;
   category: string | null;
+  /** Pool excluded authored questions */
+  bankOnly?: boolean;
   timeLimitMs: number | null;
   questionCount: number;
   earned: number;
