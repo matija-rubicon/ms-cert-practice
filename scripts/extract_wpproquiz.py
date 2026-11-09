@@ -11,7 +11,7 @@ Usage:
   python3 scripts/extract_wpproquiz.py <dir-with-html> [exam-id]
 
   <dir-with-html>  folder containing exam1.html, exam2.html, ...
-  exam-id          default: az104
+  exam-id          default: az104 (keyword maps exist for az104, ai103)
 """
 import json
 import re
@@ -38,11 +38,11 @@ OUT_DIR.mkdir(parents=True, exist_ok=True)
 OUT = OUT_DIR / "questions.json"
 
 # ---------------------------------------------------------------------------
-# Keyword -> domain classification (AZ-104 blueprint). Order matters: first
-# domain whose keywords hit wins; ties broken by score. Falls back to the
-# highest-scoring domain, or "Compute" if nothing matches.
+# Keyword -> domain classification per exam blueprint. Highest keyword score
+# wins (ties go to the earlier domain); falls back to the exam's fallback
+# domain if nothing matches.
 # ---------------------------------------------------------------------------
-DOMAIN_KEYWORDS = {
+AZ104_KEYWORDS = {
     "Identity & Governance": [
         "entra", "azure ad", "active directory", "rbac", "role assignment",
         "role-based", "policy", "initiative", "management group", "subscription",
@@ -81,17 +81,66 @@ DOMAIN_KEYWORDS = {
         "update management", "monitor", "retention",
     ],
 }
-FALLBACK_DOMAIN = "Compute"
+AI103_KEYWORDS = {
+    "Generative AI & Agents": [
+        "agent", "prompt", "rag", "retrieval-augmented", "embedding", "gpt", "llm",
+        "language model", "fine-tun", "tool call", "function call", "orchestrat", "semantic kernel",
+        "token", "temperature", "top_p", "grounding", "chunk", "evaluation", "evaluator",
+        "multi-agent", "mcp", "openai", "completion", "system message", "hallucinat", "react",
+        "plan-and-execute", "reasoning", "chain-of-thought", "few-shot", "vector",
+    ],
+    "Plan & Manage": [
+        "foundry resource", "foundry project", "hub", "deployment type", "provisioned throughput",
+        "ptu", "quota", "rate limit", "region", "sku", "pricing tier", "cost", "managed identity",
+        "key vault", "api key", "rbac", "role assignment", "private endpoint", "virtual network",
+        "network", "diagnostic", "monitor", "log analytics", "application insights", "metric",
+        "content safety", "content filter", "responsible ai", "prompt shield", "jailbreak",
+        "harmful", "groundedness detection", "container", "ci/cd", "authentication", "entra",
+    ],
+    "Computer Vision": [
+        "image", "vision", "video", "face", "object detection", "custom vision", "caption",
+        "tag", "bounding box", "dall-e", "image generation", "spatial", "camera", "visual",
+        "classification model", "photo",
+    ],
+    "Text Analysis": [
+        "sentiment", "language service", "translat", "speech", "named entity", "entity recognition",
+        "key phrase", "pii", "summariz", "conversational language", "clu", "question answering",
+        "text analytics", "transcri", "text-to-speech", "speech-to-text", "intent", "utterance",
+        "language detection", "voice",
+    ],
+    "Information Extraction": [
+        "document intelligence", "form recognizer", "content understanding", "ocr", "extract",
+        "invoice", "receipt", "azure ai search", "search index", "indexer", "skillset",
+        "knowledge mining", "layout model", "prebuilt model", "custom extraction", "field",
+        "pdf", "scanned", "analyzer",
+    ],
+}
+EXAM_DOMAINS = {
+    "az104": (AZ104_KEYWORDS, "Compute"),
+    "ai103": (AI103_KEYWORDS, "Generative AI & Agents"),
+}
+DOMAIN_KEYWORDS, FALLBACK_DOMAIN = EXAM_DOMAINS[EXAM_ID]
 
 
 def classify(text):
-    t = text.lower()
+    t = re.sub(r"<[^>]+>", " ", text).lower()
     best, best_score = FALLBACK_DOMAIN, 0
     for domain, kws in DOMAIN_KEYWORDS.items():
-        score = sum(t.count(kw) for kw in kws)
+        # match at word starts so "rag" doesn't hit "storage", "hub" doesn't hit "github"
+        score = sum(len(re.findall(r"\b" + re.escape(kw), t)) for kw in kws)
         if score > best_score:
             best, best_score = domain, score
     return best
+
+
+# Some dumps lost non-ASCII glyphs to a literal "?": "multi‑step" became
+# "multi?step" and "A → B" became "A ? B". Leave URL query strings alone.
+_LOST_HYPHEN = re.compile(r"(?<=[A-Za-z0-9])\?(?=[A-Za-z0-9])(?![\w-]*=)")
+_LOST_ARROW = re.compile(r"(?<=\s)\?(?=\s)")
+
+
+def repair_lost_glyphs(html):
+    return _LOST_ARROW.sub("→", _LOST_HYPHEN.sub("-", html))
 
 
 def clean_html(node):
@@ -122,7 +171,7 @@ def clean_html(node):
             del tag["style"]
     inner = node.decode_contents()
     inner = re.sub(r">\s+<", "><", inner)
-    return inner.strip()
+    return repair_lost_glyphs(inner.strip())
 
 
 def parse_file(path):

@@ -273,6 +273,7 @@ button[disabled] { opacity: .5; cursor: not-allowed; }
 .exam-card { display: flex; flex-direction: column; gap: 6px; }
 .exam-code { font-size: 12px; color: var(--muted); font-weight: 600; letter-spacing: .04em; }
 .exam-meta { font-size: 12px; color: var(--muted); margin-top: auto; }
+.exam-credit { font-size: 12px; color: var(--purple); margin: 0 0 8px; }
 .exam-badge { display: inline-block; padding: 1px 8px; font-size: 11px; border-radius: 10px; }
 .exam-badge.coming { background: var(--purple-bg); color: var(--purple); }
 .exam-badge.ready { background: var(--ok-bg); color: var(--green); }

@@ -118,6 +118,7 @@ export default function ExamHome({ manifest }: Props) {
           {allQuestions.length} questions in bank{authoredCount > 0 && ` (${authoredCount} written by Claude)`}. Pass threshold: {exam.passingScaled}/1000 (≈{Math.round(exam.passingScaled / 10)}%).
           Default exam: {exam.defaultQuestionCount} questions in {exam.defaultTimeMinutes} minutes, weighted to match the official domain blueprint.
         </p>
+        {exam.credit && <p className="hint exam-credit">🙏 {exam.credit}</p>}
         {last ? (
           <p className="hint">
             Last attempt: {fmtDate(last.finishedAt)} —{" "}

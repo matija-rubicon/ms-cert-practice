@@ -5,6 +5,7 @@
       "code": "AZ-400",
       "title": "Designing and Implementing Microsoft DevOps Solutions",
       "description": "Pipelines, source control, security, instrumentation, and DevOps process design across Azure DevOps and GitHub.",
+      "credit": "Question bank provided by Enis. Thank you!",
       "available": true,
       "passingScaled": 700,
       "defaultQuestionCount": 50,
@@ -61,6 +62,7 @@
       "code": "AZ-104",
       "title": "Microsoft Azure Administrator",
       "description": "Identity, governance, storage, virtual networking, compute, and monitoring on Azure.",
+      "credit": "Question bank provided by Matija. Thank you!",
       "available": true,
       "passingScaled": 700,
       "defaultQuestionCount": 50,
@@ -74,36 +76,21 @@
       ]
     },
     {
-      "id": "az204",
-      "code": "AZ-204",
-      "title": "Developing Solutions for Microsoft Azure",
-      "description": "Azure compute, storage, security, monitoring, and integrating Azure services into apps.",
-      "available": false,
+      "id": "ai103",
+      "code": "AI-103",
+      "title": "Developing AI Apps and Agents on Azure",
+      "description": "Generative AI and agents in Microsoft Foundry, plus vision, language, and information extraction solutions.",
+      "credit": "Question bank provided by Nihad. Thank you!",
+      "available": true,
       "passingScaled": 700,
       "defaultQuestionCount": 50,
       "defaultTimeMinutes": 120,
       "domains": [
-        { "name": "Compute Solutions", "weight": 0.275, "categories": [] },
-        { "name": "Azure Storage", "weight": 0.20, "categories": [] },
-        { "name": "Security", "weight": 0.20, "categories": [] },
-        { "name": "Monitor, Troubleshoot, Optimize", "weight": 0.125, "categories": [] },
-        { "name": "Connect to & Consume Services", "weight": 0.20, "categories": [] }
-      ]
-    },
-    {
-      "id": "az305",
-      "code": "AZ-305",
-      "title": "Designing Microsoft Azure Infrastructure Solutions",
-      "description": "Architect identity, governance, data, business continuity, and infrastructure solutions.",
-      "available": false,
-      "passingScaled": 700,
-      "defaultQuestionCount": 50,
-      "defaultTimeMinutes": 120,
-      "domains": [
-        { "name": "Identity, Governance, Monitoring", "weight": 0.25, "categories": [] },
-        { "name": "Data Storage Solutions", "weight": 0.25, "categories": [] },
-        { "name": "Business Continuity", "weight": 0.15, "categories": [] },
-        { "name": "Infrastructure Solutions", "weight": 0.35, "categories": [] }
+        { "name": "Plan & Manage", "weight": 0.275, "categories": ["Plan & Manage"] },
+        { "name": "Generative AI & Agents", "weight": 0.325, "categories": ["Generative AI & Agents"] },
+        { "name": "Computer Vision", "weight": 0.125, "categories": ["Computer Vision"] },
+        { "name": "Text Analysis", "weight": 0.125, "categories": ["Text Analysis"] },
+        { "name": "Information Extraction", "weight": 0.125, "categories": ["Information Extraction"] }
       ]
     }
   ]

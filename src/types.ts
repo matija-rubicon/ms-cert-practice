@@ -38,6 +38,8 @@ export interface ExamManifestEntry {
   /** Full title */
   title: string;
   description: string;
+  /** Thank-you note for whoever provided the question bank */
+  credit?: string;
   /** True if questions.json is present; false = stub/coming-soon */
   available: boolean;
   /** 0..1000, default 0.7 (i.e. 700) */

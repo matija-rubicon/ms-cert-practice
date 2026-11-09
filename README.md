@@ -5,8 +5,9 @@ scaled-score (0–1000, 700 to pass) scoring model with partial credit on multi-
 
 Currently shipping with:
 
-- **AZ-400** — Designing and Implementing Microsoft DevOps Solutions (908 questions)
-- *Stubs for AZ-104, AZ-204, AZ-305 — drop in a `questions.json` to enable.*
+- **AZ-400** — Designing and Implementing Microsoft DevOps Solutions (thanks to Enis for providing the bank)
+- **AZ-104** — Microsoft Azure Administrator (thanks to Matija for providing the bank)
+- **AI-103** — Developing AI Apps and Agents on Azure (1,488 questions — thanks to Nihad for providing the bank)
 
 ## Run locally
 
@@ -51,6 +52,7 @@ npm run preview   # serve the build locally
    - `available: true`
    - `passingScaled` (default 700)
    - `defaultQuestionCount` / `defaultTimeMinutes` from the official exam
+   - `credit` (optional) — thank-you note shown on the exam card
    - `domains[]` — list each skill domain with its midpoint weight (0..1) and the
      question-bank categories that map to it. Weights should sum to ~1.0.
 

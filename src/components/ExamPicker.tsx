@@ -28,6 +28,7 @@ export default function ExamPicker({ manifest }: Props) {
               <div className="exam-code">{e.code}</div>
               <h3>{e.title}</h3>
               <p className="exam-desc">{e.description}</p>
+              {e.credit && <p className="exam-credit">🙏 {e.credit}</p>}
               <div className="exam-meta">
                 <span className={`exam-badge ${e.available ? "ready" : "coming"}`}>
                   {e.available ? "Ready" : "Coming soon"}
