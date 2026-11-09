@@ -308,6 +308,16 @@ button[disabled] { opacity: .5; cursor: not-allowed; }
   color: var(--azure-dark);
   border: 1px solid var(--info-border);
 }
+.q-id {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 11px; padding: 2px 8px; border-radius: 4px; cursor: pointer;
+  background: transparent; color: var(--muted); border: 1px dashed var(--purple-border);
+  font-family: inherit;
+}
+.q-id:hover { color: var(--purple); border-style: solid; }
+.q-id.copied { color: var(--green); border-color: var(--green); }
+.q-id-text { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; user-select: all; }
+.q-id-action { font-weight: 600; }
 .q-multi { font-size: 11px; color: var(--purple); background: var(--purple-bg); border-radius: 4px; padding: 2px 8px; border: 1px solid var(--purple-border); }
 .q-flag {
   margin-left: auto;

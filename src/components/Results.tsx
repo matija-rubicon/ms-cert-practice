@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import QuestionId from "./QuestionId";
 import type { ExamManifest, Attempt, Question } from "../types";
 import { loadHistory, clearSession } from "../lib/storage";
 import { fmtDuration } from "../lib/format";
@@ -189,6 +190,7 @@ export default function Results({ manifest, reviewMode = false }: Props) {
                 <span className="q-num">Q{idx + 1}</span>
                 <span className="q-cat">{q.category}</span>
                 {q.type === "multiple" && <span className="q-multi">Multi-select</span>}
+                <QuestionId examCode={exam.code} questionId={q.id} />
                 <span style={{ marginLeft: "auto", fontSize: 12, color: s.fullyCorrect ? "var(--green)" : s.earned > 0 ? "var(--amber)" : "var(--red)", fontWeight: 600 }}>
                   {s.earned}/{s.max} pts
                 </span>

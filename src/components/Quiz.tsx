@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import QuestionId from "./QuestionId";
 import type { ExamManifest, Question, Attempt, SessionMode, QuestionScore, DomainBreakdown } from "../types";
 import { buildRandomExam, buildWeightedExam, playable, questionPool } from "../lib/sampling";
 import { scoreQuestion, toScaled, domainForCategory } from "../lib/scoring";
@@ -245,6 +246,7 @@ export default function Quiz({ manifest }: Props) {
             <span className="q-num">Q{i + 1} of {total}</span>
             <span className="q-cat">{q.category}</span>
             {isMulti && <span className="q-multi">Select all that apply</span>}
+            <QuestionId examCode={exam.code} questionId={q.id} />
             <button
               className={`q-flag ${state.flags[i] ? "flagged" : ""}`}
               onClick={toggleFlag}
