@@ -5,6 +5,7 @@ Two patterns show up in the source HTML:
   * UTF-8 bytes of a smart quote whose lead byte was lost to "?",
     e.g. "team?\\x80\\x99s" instead of "team’s"
 """
+import codecs
 import re
 
 _CP1252 = {
@@ -301,12 +302,18 @@ def fix_option(opt: dict) -> dict:
 # Source-vendor names: the banks were scraped from third-party practice sites.
 # Replace their fictional company names with Microsoft's standard ones and drop
 # site leftovers (saved-page links, "Ask our Experts", image-name prefixes).
+# The names are kept ROT13-encoded so they never appear in the repo as text.
 
+def _src(word: str) -> str:
+    return r"\s*".join(codecs.decode(w, "rot13") for w in word.split())
+
+
+_SITE = _src("fxvyy preg")
 _VENDOR = [
-    (re.compile(r"skill\s*cert\s*pro-(?=[\w.-]+\.(?:png|jpe?g|gif|svg|webp)\b)", re.I), lambda m: ""),
-    (re.compile(r"skill\s*cert\s*(?:pro\s*tore|lab\s*store)", re.I), "contosostore"),
-    (re.compile(r"skill\s*cert\s*(?:labs?|pro)", re.I), "contoso"),
-    (re.compile(r"rohit\s*co", re.I), "fabrikam"),
+    (re.compile(_SITE + r"\s*pro-(?=[\w.-]+\.(?:png|jpe?g|gif|svg|webp)\b)", re.I), lambda m: ""),
+    (re.compile(_SITE + r"\s*(?:pro\s*tore|lab\s*store)", re.I), "contosostore"),
+    (re.compile(_SITE + r"\s*(?:labs?|pro)", re.I), "contoso"),
+    (re.compile(_src("ebuvg pb"), re.I), "fabrikam"),
 ]
 _SAVED_PAGE_LINK = re.compile(r'<a\s[^>]*href="\./[^"]*_files/[^"]*"[^>]*>(.*?)</a>', re.S | re.I)
 _EXPERTS = re.compile(r"\s*Ask our Experts\s*", re.I)

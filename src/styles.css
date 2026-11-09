@@ -332,6 +332,7 @@ button[disabled] { opacity: .5; cursor: not-allowed; }
 .q-text { margin-bottom: 18px; font-size: 15.5px; }
 .q-text p:first-child { margin-top: 0; }
 .q-text p:last-child { margin-bottom: 0; }
+.q-text ul.answer-bank { list-style: none; padding-left: 12px; }
 .q-text pre, .explanation pre { background: var(--code-bg); border: 1px solid var(--border); padding: 12px; border-radius: 5px; overflow-x: auto; font-size: 13px; line-height: 1.45; }
 .q-text code { background: var(--code-bg); padding: 1px 5px; border-radius: 3px; font-size: 13px; }
 /* Scraped HTML: keep images, tables and code inside the card */

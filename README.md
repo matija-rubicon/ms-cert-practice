@@ -58,6 +58,39 @@ npm run preview   # serve the build locally
 
 4. Reload — the app picks it up. No code change.
 
+## Importing a scraped question bank
+
+Practice-test banks arrive as saved HTML pages (e.g. a folder of `ex1.html`, `ex2.html`, ...).
+Never ship them straight from the scrape: every bank so far needed a cleanup pass.
+
+1. **Extract**: `python3 scripts/extract_wpproquiz.py <dir-with-html> <exam-id>`
+   (`scripts/extract.py` for the older single-page format). Add a keyword → domain map for
+   the exam in `EXAM_DOMAINS` first, using the official "skills measured" weights.
+   The extractor runs `scripts/structure.py` and `scripts/textfix.py`, then applies
+   `scripts/overrides/<exam-id>.json` and appends `scripts/authored/<exam-id>.json`.
+2. **Check the output** (counts, category spread, types, duplicates, questions with no
+   correct answer) and fix the extractor/structure pass rather than hand-editing
+   `questions.json`. Hand-written fixes go in `scripts/overrides/<exam-id>.json` so they
+   survive a re-extract.
+3. **Review checklist**: go through the whole bank, not a sample:
+   - **Text repair**: mojibake (`â€™`, `?` where `‑ → –` were lost), smart quotes inside code.
+   - **Structure**: requirement/condition lines → lists; "Match the following" questions →
+     numbered items with options reading `1 → X`; answer-bank letters resolved
+     (`1 → C. Custom analyzer`); the actual question as its own paragraph.
+   - **Code**: snippets, CLI commands, JSON/YAML → `<pre><code>` with sane indentation;
+     command-like options flagged `code: true`.
+   - **Explanations**: paragraphs instead of `<br/>` runs, "Why the other options are
+     incorrect" as a list, trailing doc titles as a "Learn more" list.
+   - **Answers**: answer key matches the explanation; flag suspicious keys in
+     `scripts/overrides/FLAGS.md`.
+   - **Exhibits**: missing/wrong images or external case-study links → disable the question
+     (`disabled` + `disabled_reason` in overrides) if it can't be answered as presented.
+   - **Source names**: no practice-site or vendor names anywhere (questions, image names,
+     scripts, commits). `textfix.scrub_vendor` maps known ones to Microsoft's sample
+     names (Contoso, Fabrikam); add new ones there.
+4. Add the exam to `manifest.json` (with `credit` for whoever provided the bank) and render
+   a few of each question shape in the browser before shipping.
+
 ## Scoring model
 
 Microsoft uses a scaled 0–1000 score with psychometric difficulty adjustment.

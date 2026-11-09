@@ -19,6 +19,7 @@ import sys
 import hashlib
 from pathlib import Path
 
+from structure import structure_questions
 from textfix import fix_questions
 
 try:
@@ -266,7 +267,7 @@ def main():
     for c, n in sorted(cat_count.items(), key=lambda x: -x[1]):
         print(f"  {n:4d}  {c}")
 
-    OUT.write_text(json.dumps(fix_questions(all_q, EXAM_ID), ensure_ascii=False, separators=(",", ":")),
+    OUT.write_text(json.dumps(fix_questions(structure_questions(all_q), EXAM_ID), ensure_ascii=False, separators=(",", ":")),
                    encoding="utf-8")
     print(f"\nWrote {OUT} ({OUT.stat().st_size:,} bytes)")
 
