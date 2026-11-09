@@ -239,6 +239,14 @@ button {
   transition: background .12s, transform .05s;
 }
 button:active { transform: translateY(1px); }
+.gate { max-width: 360px; margin: 10vh auto 0; display: flex; flex-direction: column; gap: 10px; }
+.gate h2 { margin: 0; }
+.gate .hint { margin: 0 0 4px; }
+.gate input {
+  padding: 9px 11px; font-size: 15px; border-radius: 6px; font-family: inherit;
+  border: 1px solid var(--border-strong); background: var(--field); color: inherit;
+}
+.gate-error { color: var(--red); font-size: 13px; margin: 0; }
 .btn-primary { background: var(--azure-solid); color: #fff; }
 .btn-primary:hover { background: var(--azure-solid-hover); }
 .btn-secondary { background: var(--field); color: var(--azure); border-color: var(--azure); }

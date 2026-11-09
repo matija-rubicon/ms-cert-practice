@@ -91,6 +91,19 @@ Never ship them straight from the scrape: every bank so far needed a cleanup pas
 4. Add the exam to `manifest.json` (with `credit` for whoever provided the bank) and render
    a few of each question shape in the browser before shipping.
 
+## Password gate
+
+The site shows a password screen (`src/components/PasswordGate.tsx`); once unlocked, the
+browser remembers it. It is a client-side gate only: GitHub Pages has no server auth, so the
+question files stay reachable by direct URL and in this public repo. Only a salted SHA-256
+of the password is stored. To change the password:
+
+```bash
+printf '%s' 'mscert.gate.v1:<new password>' | shasum -a 256
+```
+
+Put the hash in `PASSWORD_SHA256`; to force everyone to re-enter it, also bump `UNLOCK_KEY`.
+
 ## Scoring model
 
 Microsoft uses a scaled 0–1000 score with psychometric difficulty adjustment.
